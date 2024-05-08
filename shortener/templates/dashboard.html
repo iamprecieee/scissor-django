@@ -1,0 +1,15 @@
+{% extends "home.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+    <div>
+        <h1><b>RECENT SHORT URLS</b></h1>
+    </div>
+    <br>
+    <div>
+        {% for url in urls %}
+            <p>Original URL: {{url.original_url}}</p>
+            <p>Short URL: {{server_name}}/{{url.short_url}}</p>
+            <p>Created: {{url.created_at}}</p>
+        {% endfor %}
+    </div>
+{% endblock %}
