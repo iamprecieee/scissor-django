@@ -12,4 +12,16 @@
             <p>Created: {{url.created_at}}</p>
         {% endfor %}
     </div>
+    <br>
+    <div>
+        <h1><b>RECENT CUSTOM URLS</b></h1>
+    </div>
+    <br>
+    <div>
+        {% for url in custom_urls %}
+            <p>Original URL: {{url.original_url}}</p>
+            <p>Custom URL: {{server_name}}/{{url.custom_url}}</p>
+            <p>Created: {{url.created_at}}</p>
+        {% endfor %}
+    </div>
 {% endblock %}

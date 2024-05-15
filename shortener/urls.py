@@ -7,5 +7,7 @@ app_name = "shortener"
 urlpatterns = [
     path("", home, name="home"),
     path("dashboard/", dashboard, name="dashboard"),
-    path("shorten/", shorten, name="shorten")
+    path("shorten/", shorten, name="shorten"),
+    path("custom-shorten/", custom_shorten, name="custom-shorten"),
+    path("<str:url>/", redirection, name="redirection")
 ]

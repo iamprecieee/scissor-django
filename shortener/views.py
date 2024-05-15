@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import *
 from .forms import *
 from django.conf import settings
@@ -11,7 +11,8 @@ def home(request):
 
 def dashboard(request):
     urls = ShortUrlModel.objects.all()
-    return render(request, "dashboard.html", {"urls": urls, "server_name": settings.SERVER_NAME})
+    custom_urls = CustomUrlModel.objects.all()
+    return render(request, "dashboard.html", {"urls": urls, "custom_urls": custom_urls, "server_name": settings.SERVER_NAME})
 
 def shorten(request):
     if request.method == "POST":
@@ -29,16 +30,42 @@ def shorten(request):
                     return render(request, "shortener/short_url.html",
                     {"form": form})
                 
-            # Create an save URLs
+            # Create and save URLs
             new_url = ShortUrlModel.objects.create(short_url=short_url, **form.cleaned_data)
             new_url.save()
-            return HttpResponseRedirect("/shortener/dashboard/")
+            return HttpResponseRedirect("/dashboard/")
         
-        else:
-            return render(request, "shortener/short_url.html",
-                  {"form": form})
-    
-    else:
-        form = ShortenUrlForm()
         return render(request, "shortener/short_url.html",
                   {"form": form})
+    
+    form = ShortenUrlForm()
+    return render(request, "shortener/short_url.html",
+                  {"form": form})
+    
+def custom_shorten(request):
+    if request.method == "POST":
+        form = CustomUrlForm(request.POST)
+        if form.is_valid():
+            # Create and save URLs
+            new_url = CustomUrlModel.objects.create(**form.cleaned_data)
+            new_url.save()
+            return HttpResponseRedirect("/dashboard/")
+        
+        return render(request, "shortener/custom_url.html",
+                  {"form": form})
+        
+    form = CustomUrlForm()
+    return render(request, "shortener/custom_url.html",
+                  {"form": form})
+        
+def redirection(request, url):
+    short_url = ShortUrlModel.objects.filter(short_url=url).first()
+    custom_url = CustomUrlModel.objects.filter(custom_url=url).first()
+    if not (short_url, custom_url):
+        return HttpResponseRedirect("/dashboard/")
+    
+    try:
+        return redirect(short_url.original_url)
+    except:
+        return redirect(custom_url.original_url)
+    
