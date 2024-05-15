@@ -10,6 +10,9 @@
             <p>Original URL: {{url.original_url}}</p>
             <p>Short URL: {{server_name}}/{{url.short_url}}</p>
             <p>Created: {{url.created_at}}</p>
+            <div>
+                <button>QR CODE</button>
+            </div>
         {% endfor %}
     </div>
     <br>
@@ -22,6 +25,9 @@
             <p>Original URL: {{url.original_url}}</p>
             <p>Custom URL: {{server_name}}/{{url.custom_url}}</p>
             <p>Created: {{url.created_at}}</p>
+            <div>
+                <button>QR CODE</button>
+            </div>
         {% endfor %}
     </div>
 {% endblock %}

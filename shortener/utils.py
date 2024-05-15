@@ -9,6 +9,7 @@ from .models import *
 def generate_short_url():
     return "".join(choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k=6))
 
+
 def url_cleaner(url):
     # Validate URL format
     parsed_url = urlparse(url)
@@ -24,6 +25,7 @@ def url_cleaner(url):
         raise ValidationError("Process took too long and timed out. Please try again")
 
     return url
+
 
 def check_url(url):
     if ShortUrlModel.objects.filter(short_url=url).exists():
