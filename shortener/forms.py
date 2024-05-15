@@ -29,3 +29,15 @@ class CustomUrlForm(ModelForm):
     def clean_custom_url(self):
         url = self.cleaned_data["custom_url"]
         return check_url(url)
+    
+
+# Form for editing custom url
+class EditCustomUrlForm(ModelForm):
+    class Meta:
+        model = CustomUrlModel
+        fields = ["custom_url"]
+        labels = {"custom_url": "New custom url"}
+        
+    def clean_custom_url(self):
+        url = self.cleaned_data["custom_url"]
+        return check_url(url)

@@ -7,3 +7,8 @@ from .models import *
 class ShortUrlAdmin(ModelAdmin):
     list_display = ("id", "original_url", "short_url", "created_at")
     
+    
+# Custom url model
+@register(CustomUrlModel)
+class CustomUrlAdmin(ModelAdmin):
+    list_display = ("id", "original_url", "custom_url", "created_at")
