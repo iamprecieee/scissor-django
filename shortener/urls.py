@@ -1,5 +1,6 @@
 from django.urls import path
-from .views import *
+from .views import (home, dashboard, shorten, custom_shorten,
+                    delete_url, edit_url, redirection, generate_qrcode)
 
 
 app_name = "shortener"

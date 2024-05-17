@@ -1,13 +1,14 @@
 from django.shortcuts import render, redirect
-from .models import *
-from .forms import *
+from .forms import (ShortUrlModel, CustomUrlModel, ShortenUrlForm, CustomUrlForm,
+                    EditCustomUrlForm)
 from django.conf import settings
 from django.http import HttpResponseRedirect, HttpResponse
-from .utils import *
+from .utils import generate_short_url
 from qrcode import QRCode
 from qrcode.constants import ERROR_CORRECT_M
 from io import BytesIO
 from django.db.transaction import atomic
+from django.contrib.auth.decorators import login_required
 
 
 server_name = settings.SERVER_NAME
@@ -17,9 +18,11 @@ def home(request):
     return render(request, "home.html")
 
 
+@login_required
 def dashboard(request):
-    urls = ShortUrlModel.objects.all()
-    custom_urls = CustomUrlModel.objects.all()
+    user = request.user
+    urls = ShortUrlModel.objects.filter(user=user).all()
+    custom_urls = CustomUrlModel.objects.filter(user=user).all()
     return render(
         request,
         "dashboard.html",
@@ -27,30 +30,20 @@ def dashboard(request):
     )
 
 
+@login_required
 def shorten(request):
     if request.method == "POST":
         form = ShortenUrlForm(request.POST)
         if form.is_valid():
             short_url = generate_short_url()
-
-            # Handle potential short_url collisions
-            collisions = 0
-            while ShortUrlModel.objects.filter(short_url=short_url).exists():
-                collisions += 1
-                short_url = generate_short_url()
-                if collisions > 5:
-                    form.add_error(
-                        None,
-                        "Failed to generate a unique URL after several attempts. Please try again.",
-                    )
-                    return render(request, "shortener/short_url.html", {"form": form})
-
+            
             # Create and save URLs
             new_url = ShortUrlModel.objects.create(
-                short_url=short_url, **form.cleaned_data
+                short_url=short_url, user=request.user, **form.cleaned_data
             )
             with atomic():
                 new_url.save()
+                
             return HttpResponseRedirect("/dashboard/")
 
         return render(request, "shortener/short_url.html", {"form": form})
@@ -59,12 +52,15 @@ def shorten(request):
     return render(request, "shortener/short_url.html", {"form": form})
 
 
+@login_required
 def custom_shorten(request):
     if request.method == "POST":
         form = CustomUrlForm(request.POST)
         if form.is_valid():
             # Create and save URLs
-            new_url = CustomUrlModel.objects.create(**form.cleaned_data)
+            new_url = CustomUrlModel.objects.create(
+                user=request.user, **form.cleaned_data
+                )
             with atomic():
                 new_url.save()
             return HttpResponseRedirect("/dashboard/")
@@ -75,10 +71,12 @@ def custom_shorten(request):
     return render(request, "shortener/custom_url.html", {"form": form})
 
 
+@login_required
 def delete_url(request, url_id):
     if request.method == "POST":
-        short_url = ShortUrlModel.objects.filter(id=url_id).first()
-        custom_url = CustomUrlModel.objects.filter(id=url_id).first()
+        user = request.user
+        short_url = ShortUrlModel.objects.filter(id=url_id, user=user).first()
+        custom_url = CustomUrlModel.objects.filter(id=url_id, user=user).first()
 
         if short_url:
             with atomic():
@@ -91,10 +89,12 @@ def delete_url(request, url_id):
         return HttpResponseRedirect("/dashboard/")
 
 
+@login_required
 def edit_url(request, url_id):
     if request.method == "POST":
+        user = request.user
         form = EditCustomUrlForm(
-            request.POST, instance=CustomUrlModel.objects.filter(id=url_id).first()
+            request.POST, instance=CustomUrlModel.objects.filter(id=url_id, user=user).first()
         )
         if form.is_valid():
             with atomic():

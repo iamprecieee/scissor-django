@@ -5,14 +5,26 @@
     </head>
     <body>
         <div>
-            <h4><a href="{% url 'shortener:dashboard' %}">DASHBOARD</a></h4>  
-            <br>
-            <h4><a href="{% url 'shortener:home' %}">HOME</a></h4>
-            <br>
-            <h4><a href="{% url 'shortener:shorten' %}">SHORTEN</a></h4>
-            <br>
-            <h4><a href="{% url 'shortener:custom-shorten' %}">CUSTOM-SHORTEN</a></h4>
-            <br>
+            {% if not request.user.is_authenticated %}
+                <h4><a href="{% url 'shortener:home' %}">HOME</a></h4>
+                <br>
+                <h4><a href="{% url 'user:register' %}">REGISTER</a></h4>  
+                <br>
+                <h4><a href="{% url 'user:login' %}">LOGIN</a></h4>  
+                <br>
+            {% else %}
+                <h4><a href="{% url 'shortener:dashboard' %}">DASHBOARD</a></h4>  
+                <br>
+                <h4><a href="{% url 'shortener:shorten' %}">SHORTEN</a></h4>
+                <br>
+                <h4><a href="{% url 'shortener:custom-shorten' %}">CUSTOM-SHORTEN</a></h4>
+                <br>
+                <form action="{% url 'user:logout' %}" method="post">  
+                    {% csrf_token %}
+                    <button type="submit">LOGOUT</button>
+                </form>
+                <br>
+            {% endif %}
         </div>
         <div>
             {% block content %}{% endblock %}

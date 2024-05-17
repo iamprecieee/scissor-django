@@ -1,5 +1,5 @@
 from django.contrib.admin import ModelAdmin, register
-from .models import *
+from .models import ShortUrlModel, CustomUrlModel
 
 
 # Short url model

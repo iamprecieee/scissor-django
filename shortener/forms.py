@@ -1,8 +1,6 @@
-from django.forms import ModelForm, ValidationError
-from .models import *
-from urllib.parse import urlparse
-import requests
-from .utils import *
+from django.forms import ModelForm
+from .models import ShortUrlModel, CustomUrlModel
+from .utils import url_cleaner, check_url
 
 
 # Form for short url
