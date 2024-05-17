@@ -6,4 +6,14 @@
         {% csrf_token %}
         <input type="submit" value="REGISTER">
     </form>
+    <p>
+        <a href="{% url 'social:begin' 'twitter' %}">
+            REGISTER WITH TWITTER
+        </a>
+    </p>
+    <p>
+        <a href="{% url 'social:begin' 'google-oauth2' %}">
+            REGISTER WITH GOOGLE
+        </a>
+    </p>
 {% endblock %}

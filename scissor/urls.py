@@ -20,6 +20,6 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('user/', include('user.urls', namespace='user')),
+    path('social-auth/', include('social_django.urls', namespace='social')),
     path('', include('shortener.urls', namespace='shortener')),
-    
 ]

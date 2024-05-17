@@ -19,6 +19,8 @@
                 <br>
                 <h4><a href="{% url 'shortener:custom-shorten' %}">CUSTOM-SHORTEN</a></h4>
                 <br>
+                <h4><a href="{% url 'user:edit-password' %}">EDIT PASSWORD</a></h4>
+                <br>
                 <form action="{% url 'user:logout' %}" method="post">  
                     {% csrf_token %}
                     <button type="submit">LOGOUT</button>

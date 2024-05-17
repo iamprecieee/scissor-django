@@ -47,3 +47,28 @@ class UserLoginForm(Form):
             raise ValidationError("Invalid email/username.")
         
         return email_name
+    
+    
+class UserPasswordEditForm(Form):
+    password1 = CharField(label="Enter Old Password", widget=PasswordInput)
+    password2 = CharField(label="Enter New Password", widget=PasswordInput)
+    password3 = CharField(label="Repeat New Password", widget=PasswordInput)
+    
+    def clean_password3(self):
+        cleaned_form_data = self.cleaned_data
+        if cleaned_form_data["password2"] != cleaned_form_data["password3"]:
+            raise ValidationError("Passwords do not match")
+        
+        return cleaned_form_data["password2"]
+    
+    
+class UserSocialPasswordEditForm(Form):
+    password1 = CharField(label="Enter Password", widget=PasswordInput)
+    password2 = CharField(label="Repeat Password", widget=PasswordInput)
+    
+    def clean_password2(self):
+        cleaned_form_data = self.cleaned_data
+        if cleaned_form_data["password1"] != cleaned_form_data["password2"]:
+            raise ValidationError("Passwords do not match")
+        
+        return cleaned_form_data["password2"]

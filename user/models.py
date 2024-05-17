@@ -6,10 +6,13 @@ from uuid import uuid4
 class CustomUserManager(BaseUserManager):
     MAX_SUPERUSERS_ALLOWED = 1
     
-    def _create_user(self, email, password, **kwargs):
+    def _create_user(self, email, password=None, **kwargs):
         email = self.normalize_email(email)
         user = self.model(email=email, **kwargs)
-        user.set_password(password)
+        if password:
+            user.set_password(password)
+        else:
+            user.set_unusable_password()
         user.save(using=self._db)
         
         return user
@@ -23,7 +26,7 @@ class CustomUserManager(BaseUserManager):
         
         return self._create_user(email, password, **kwargs)
     
-    def create_user(self, email, password, **kwargs):
+    def create_user(self, email, password=None, **kwargs):
         kwargs.setdefault("is_staff", False)
         kwargs.setdefault("is_superuser", False)
         

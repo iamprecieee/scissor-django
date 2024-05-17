@@ -6,4 +6,15 @@
         {% csrf_token %}
         <input type="submit" value="LOGIN">
     </form>
+    <b>
+    <p>
+        <a href="{% url 'social:begin' 'twitter' %}">
+            LOGIN WITH TWITTER
+        </a>
+    </p>
+    <p>
+        <a href="{% url 'social:begin' 'google-oauth2' %}">
+            LOGIN WITH GOOGLE
+        </a>
+    </p>
 {% endblock %}
