@@ -12,6 +12,7 @@ class CustomUserManager(BaseUserManager):
         if password:
             user.set_password(password)
         else:
+            # This is for social login. Users can change to a new password later.
             user.set_unusable_password()
         user.save(using=self._db)
         

@@ -1,12 +1,16 @@
 from django.shortcuts import render
 from .forms import (UserRegistrationForm, UserModel, UserLoginForm, UserPasswordEditForm,
-                     UserSocialPasswordEditForm)
+                     UserSocialPasswordEditForm, PasswordResetRequestForm, PasswordChangeForm)
 from django.http import HttpResponseRedirect
 from django.db.transaction import atomic
 from django.contrib.auth import authenticate, login
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import check_password
+from .utils import send_reset_mail, DecodeResetToken
+from django.core.exceptions import ValidationError
+from django.shortcuts import redirect
+from django.urls import reverse
 
 
 def register_user(request):
@@ -46,7 +50,7 @@ def login_user(request):
             if user:
                 if user.is_active:
                     login(request, user)
-                    return HttpResponseRedirect("/dashboard/")
+                    return redirect(reverse("shortener:dashboard"))
                 
                 form.add_error(None, "Inactive user account detected.")
             
@@ -71,7 +75,7 @@ def edit_password(request):
                 with atomic():
                     user.save()
 
-                return HttpResponseRedirect("/dashboard/")
+                return redirect(reverse("user:dashboard"))
 
             return render(request, "edit_password.html", {"form": form})
 
@@ -89,7 +93,7 @@ def edit_password(request):
                     with atomic():
                         user.save()
 
-                    return HttpResponseRedirect("/dashboard/")
+                    return redirect(reverse("user:dashboard"))
                 
                 form.add_error(None, "Incorrect password detected.")
 
@@ -98,3 +102,42 @@ def edit_password(request):
         form = UserPasswordEditForm()
         return render(request, "edit_password.html", {"form": form})
 
+
+def password_reset_request(request):
+    if request.method == "POST":
+        form = PasswordResetRequestForm(request.POST)
+        if form.is_valid():
+            user = UserModel.objects.filter(
+                email=form.cleaned_data["email"]
+            ).first()
+            send_reset_mail(user)
+            return render(request, "password_reset_redirect.html")
+        
+        return render(request, "password_reset_request.html", {"form": form})
+    
+    form = PasswordResetRequestForm()
+    return render(request, "password_reset_request.html", {"form": form})
+    
+    
+def password_reset_confirm(request, uidb64, token):
+    try:
+        decoder = DecodeResetToken(uidb64, token)
+        decoder.token_check()
+        if request.method == "POST":
+            form = PasswordChangeForm(request.POST)
+            if form.is_valid():
+                password = form.cleaned_data["password1"]
+                user = decoder.get_user()
+                with atomic():
+                    user.set_password(password)
+                    user.save()
+                    
+                return HttpResponseRedirect("/login/")
+            
+            return render(request, "password_change.html", {"form": form})
+        
+        form = PasswordChangeForm()
+        return render(request, "password_change.html", {"form": form})
+        
+    except ValidationError:
+        return render(request, "error_400.html", {"error_message": "Invalid token detected."})

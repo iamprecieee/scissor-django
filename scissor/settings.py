@@ -31,7 +31,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = [os.getenv("ALLOWED_HOST")]
 
-SERVER_NAME = os.getenv("SERVER_NAME", "http://127.0.0.1:8000")
+SERVER_NAME = os.getenv("MY_SERVER_NAME")
 
 
 # Application definition
@@ -168,3 +168,13 @@ SOCIAL_AUTH_PIPELINE = [
     'social_core.pipeline.social_auth.load_extra_data',
     'social_core.pipeline.user.user_details',
 ]
+
+
+# Email configuration
+EMAIL_PORT = int(os.getenv("EMAIL_PORT"))
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND")
+SMTP_SERVER = os.getenv("SMTP_SERVER")
+SMTP_USERNAME = os.getenv("SMTP_USERNAME")
+SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False

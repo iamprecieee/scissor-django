@@ -1,5 +1,5 @@
 from django.forms import (ModelForm, CharField, PasswordInput, ValidationError,
-                           Form)
+                           Form, EmailInput)
 from .models import UserModel
 from django.db.models import Q
 
@@ -72,3 +72,18 @@ class UserSocialPasswordEditForm(Form):
             raise ValidationError("Passwords do not match")
         
         return cleaned_form_data["password2"]
+    
+    
+class PasswordResetRequestForm(Form):
+    email = CharField(label="Enter Email", widget=EmailInput)
+    
+    def clean_email(self):
+        email = self.cleaned_data["email"]
+        if not UserModel.objects.filter(email=email).exists():
+            raise ValidationError("Invalid email address")
+        
+        return email
+    
+    
+class PasswordChangeForm(UserSocialPasswordEditForm):
+    password1 = CharField(label="Enter New Password", widget=PasswordInput)
